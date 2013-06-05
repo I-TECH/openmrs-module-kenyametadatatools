@@ -15,6 +15,7 @@
 package org.openmrs.module.kenyamflsync.api;
 
 import org.openmrs.api.OpenmrsService;
+import org.openmrs.module.kenyamflsync.task.BaseSynchronizeTask;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.net.URL;
@@ -26,8 +27,8 @@ import java.net.URL;
 public interface KenyaMflSyncService extends OpenmrsService {
 
 	/**
-	 * Start synchronizing with a remote spreadsheet
-	 * @param url the spreadsheet URL
+	 * Internal only. Executes a synchronization task in a transaction
+	 * @param task the task to execute
 	 */
-	public void synchronizeWithSpreadSheet(URL url);
+	void executeTask(BaseSynchronizeTask task);
 }

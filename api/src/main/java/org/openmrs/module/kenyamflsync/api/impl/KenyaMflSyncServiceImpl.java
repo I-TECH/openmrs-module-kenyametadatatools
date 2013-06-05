@@ -14,15 +14,11 @@
 
 package org.openmrs.module.kenyamflsync.api.impl;
 
-import org.openmrs.api.context.Daemon;
 import org.openmrs.api.impl.BaseOpenmrsService;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.openmrs.module.kenyamflsync.api.KenyaMflSyncService;
 import org.openmrs.module.kenyamflsync.task.BaseSynchronizeTask;
-import org.openmrs.module.kenyamflsync.task.SynchronizeFromRemoteSpreadsheetTask;
-
-import java.net.URL;
 
 /**
  * Default implementation of {@link org.openmrs.module.kenyamflsync.api.KenyaMflSyncService}
@@ -32,19 +28,10 @@ public class KenyaMflSyncServiceImpl extends BaseOpenmrsService implements Kenya
 	protected final Log log = LogFactory.getLog(KenyaMflSyncServiceImpl.class);
 
 	/**
-	 * @see org.openmrs.module.kenyamflsync.api.KenyaMflSyncService#synchronizeWithSpreadSheet(java.net.URL)
+	 * @see KenyaMflSyncService#executeTask(org.openmrs.module.kenyamflsync.task.BaseSynchronizeTask)
 	 */
 	@Override
-	public void synchronizeWithSpreadSheet(URL url) {
-
-		// TODO figure out how best to run the sync task
-
-		/*BaseSynchronizeTask task = new SynchronizeFromRemoteSpreadsheetTask(url);
-
-		try {
-			Daemon.executeScheduledTask(task);
-		} catch (Throwable throwable) {
-			throwable.printStackTrace();
-		}*/
+	public void executeTask(BaseSynchronizeTask task) {
+		task.execute();
 	}
 }

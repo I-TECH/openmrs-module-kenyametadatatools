@@ -24,7 +24,7 @@ import java.util.TimerTask;
 /**
  * Base class for synchronize tasks
  */
-public abstract class BaseSynchronizeTask extends AbstractTask {
+public abstract class BaseSynchronizeTask {
 
 	protected  Log log = LogFactory.getLog(getClass());
 
@@ -40,10 +40,6 @@ public abstract class BaseSynchronizeTask extends AbstractTask {
 	 */
 	protected abstract void doImport() throws Exception;
 
-	/**
-	 * @see org.openmrs.scheduler.tasks.AbstractTask#execute()
-	 */
-	@Override
 	public void execute() {
 		try {
 			doImport();

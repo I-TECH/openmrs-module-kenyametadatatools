@@ -19,6 +19,9 @@ import org.apache.commons.logging.LogFactory;
 import org.openmrs.api.context.Context;
 import org.openmrs.module.kenyamflsync.KenyaMflSyncConstants;
 import org.openmrs.module.kenyamflsync.api.KenyaMflSyncService;
+import org.openmrs.module.kenyamflsync.task.BaseSynchronizeTask;
+import org.openmrs.module.kenyamflsync.task.SynchronizeFromRemoteSpreadsheetTask;
+import org.openmrs.module.kenyamflsync.task.TaskEngine;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -40,6 +43,9 @@ public class SynchronizeController {
 	@RequestMapping(method = RequestMethod.GET)
 	public String showForm(ModelMap model) {
 		model.addAttribute("spreadsheetUrl", KenyaMflSyncConstants.DEFAULT_SPREADSHEET_URL);
+
+		model.addAttribute("taskOutput", TaskEngine.getOutput());
+
 		return "/module/kenyamflsync/synchronize";
 	}
 
@@ -49,7 +55,9 @@ public class SynchronizeController {
 		try {
 			URL url = new URL(spreadsheetUrl);
 
-			Context.getService(KenyaMflSyncService.class).synchronizeWithSpreadSheet(url);
+			BaseSynchronizeTask task = new SynchronizeFromRemoteSpreadsheetTask(url);
+			TaskEngine.start(task);
+
 			return "redirect:synchronize.form";
 		}
 		catch (MalformedURLException e) {
