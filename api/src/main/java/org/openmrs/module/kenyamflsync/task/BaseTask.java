@@ -12,14 +12,15 @@
  * Copyright (C) OpenMRS, LLC.  All Rights Reserved.
  */
 
-package org.openmrs.module.kenyamflsync;
+package org.openmrs.module.kenyamflsync.task;
 
 /**
- * Module contants
+ * Base class for tasks
  */
-public class KenyaMflSyncConstants {
+public abstract class BaseTask {
 
-	public static final String MODULE_ID = "kenyamflsync";
-
-	public static final String DEFAULT_SPREADSHEET_URL = "http://ehealth.or.ke/facilities/download-latest.aspx";
+	/**
+	 * Executes the tasks work
+	 */
+	public abstract void execute();
 }

@@ -14,6 +14,7 @@
 
 package org.openmrs.module.kenyamflsync.task;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.poi.hssf.usermodel.HSSFCell;
 import org.apache.poi.hssf.usermodel.HSSFRow;
 import org.apache.poi.hssf.usermodel.HSSFSheet;
@@ -23,71 +24,56 @@ import org.openmrs.Location;
 import org.openmrs.LocationAttribute;
 import org.openmrs.LocationAttributeType;
 import org.openmrs.api.context.Context;
-import org.openmrs.module.kenyamflsync.KenyaMflSyncConstants;
+import org.openmrs.module.kenyamflsync.KenyaMflSyncUtils;
 import org.openmrs.util.OpenmrsUtil;
 
 import java.io.*;
 import java.net.URL;
 import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
 /**
  * Task to synchronize locations from a remote spreadsheet
  */
-public class SynchronizeFromRemoteSpreadsheetTask extends BaseSynchronizeTask {
+public class MflSyncFromRemoteSpreadsheetTask extends BaseMflSyncTask {
 
 	protected URL spreadsheetUrl = null;
 
-	protected Map<String, Integer> mflCodesToIds = new HashMap<String, Integer>();
-
-	protected LocationAttributeType mfcAttrType;
-
 	/**
 	 * Creates task from spreadsheet URL
+	 * @param mflCodeAttrType the location attribute type for the MFL code
 	 * @param spreadsheetUrl the spreadsheet URL
 	 */
-	public SynchronizeFromRemoteSpreadsheetTask(URL spreadsheetUrl) {
+	public MflSyncFromRemoteSpreadsheetTask(LocationAttributeType mflCodeAttrType, URL spreadsheetUrl) {
+		super(mflCodeAttrType);
+
 		this.spreadsheetUrl = spreadsheetUrl;
 	}
 
 	/**
-	 * @see org.openmrs.module.kenyamflsync.task.BaseSynchronizeTask#doImport()
+	 * @see BaseMflSyncTask#doImport()
 	 */
 	@Override
 	public void doImport() throws Exception {
 
 		File tmpZip = null;
 
-		mfcAttrType = Context.getLocationService().getLocationAttributeTypeByUuid(KenyaMflSyncConstants.MASTER_FACILITY_CODE_LOCATION_ATTRIBUTE_TYPE_UUID);
-
 		try {
-			log("Loading MFC to ID mappings...");
-
-			for (Location loc : Context.getLocationService().getAllLocations()) {
-				for (LocationAttribute attr : loc.getActiveAttributes(mfcAttrType)) {
-					if (attr.getValue() != null) {
-						mflCodesToIds.put((String) attr.getValue(), loc.getLocationId());
-					}
-				}
-			}
-
-			log("Downloading MFL archive. This may take a few minutes...");
+			TaskEngine.log("Downloading MFL archive. This may take a few minutes ...");
 
 			tmpZip = File.createTempFile("mfl", ".zip");
 
 			OutputStream out = new BufferedOutputStream(new FileOutputStream(tmpZip));
 			OpenmrsUtil.copyFile(spreadsheetUrl.openStream(), out);
 
-			log("Downloaded archive " + tmpZip.getName());
-			log("Looking for XLS files in archive...");
+			TaskEngine.log("Downloaded archive " + tmpZip.getName());
+			TaskEngine.log("Looking for XLS files in archive ...");
 
 			ZipFile zipFile = new ZipFile(tmpZip);
 			for (ZipEntry entry : Collections.list(zipFile.entries())) {
 				if (entry.getName().toLowerCase().endsWith(".xls")) {
-					log("Importing " + entry.getName() + "...");
+					TaskEngine.log("Importing '" + entry.getName() + "' ...");
 					importXls(zipFile.getInputStream(entry));
 				}
 			}
@@ -111,13 +97,19 @@ public class SynchronizeFromRemoteSpreadsheetTask extends BaseSynchronizeTask {
 
 		for (int r = sheet.getFirstRowNum() + 1; r <= sheet.getLastRowNum(); ++r) {
 			HSSFRow row = sheet.getRow(r);
-			String code = String.valueOf(cellValue(row.getCell(0)));
+			String code = String.valueOf(((Double) cellValue(row.getCell(0))).intValue());
 			String name = (String) cellValue(row.getCell(1));
 			String province = (String) cellValue(row.getCell(2));
 			String type = (String) cellValue(row.getCell(6));
 
-			if (code != null && name != null) {
-				importLocation(code, name, province, type);
+			if (StringUtils.isEmpty(name)) {
+				TaskEngine.logError("Unable to import location " + code + " with empty name");
+			}
+			else if (StringUtils.isEmpty(code)) {
+				TaskEngine.logError("Unable to import location '" + name + "' with invalid code");
+			}
+			else {
+				importLocation(code, name.trim(), province, type);
 			}
 		}
 	}
@@ -130,38 +122,59 @@ public class SynchronizeFromRemoteSpreadsheetTask extends BaseSynchronizeTask {
 	 * @param type location type
 	 */
 	protected void importLocation(String code, String name, String province, String type) {
-		Location location = null;
+		// Map MFL fields to location properties
+		String locationName = name;
+		String locationDescription = type;
+		String locationStateProvince = province;
+		String locationCountry = "Kenya";
 
 		// Look for existing location with this code
-		Integer existingLocationId = mflCodesToIds.get(code);
-		if (existingLocationId != null) {
-			location = Context.getLocationService().getLocation(existingLocationId);
-		}
+		Location location = lookupMflCodeCache(code);
+
+		boolean doCreate = false, doUpdate = false;
 
 		// Create new location if it doesn't exist
 		if (location == null) {
 			location = new Location();
 
+			// Create MFL code attribute for new location
 			LocationAttribute mfcAttr = new LocationAttribute();
-			mfcAttr.setAttributeType(mfcAttrType);
+			mfcAttr.setAttributeType(getMflCodeAttributeType());
 			mfcAttr.setValue(code);
 			mfcAttr.setOwner(location);
-
 			location.addAttribute(mfcAttr);
 
-			createdCount++;
+			doCreate = true;
 		}
 		else {
+			// Compute hashes of existing location fields and incoming fields
+			String incomingHash = KenyaMflSyncUtils.hash(locationName, locationDescription, locationStateProvince, locationCountry);
+			String existingHash = KenyaMflSyncUtils.hash(location.getName(), location.getDescription(), location.getStateProvince(), location.getCountry());
+
+			// Only update if hashes are different
+			if (!incomingHash.equals(existingHash)) {
+				doUpdate = true;
+			}
+		}
+
+		if (doCreate) {
+			TaskEngine.log("Creating new location '" + locationName + "' with code " + code);
+			createdCount++;
+		}
+		else if (doUpdate) {
+			TaskEngine.log("Updating existing location '" + locationName + "' with code " + code);
 			updatedCount++;
 		}
 
-		location.setName(name);
-		location.setDescription(type);
-		location.setCountry("Kenya");
-		location.setStateProvince(province);
+		if (doCreate || doUpdate) {
+			location.setName(locationName);
+			location.setDescription(locationDescription);
+			location.setStateProvince(locationStateProvince);
+			location.setCountry(locationCountry);
 
-		location = Context.getLocationService().saveLocation(location);
-		mflCodesToIds.put(code, location.getLocationId());
+			Context.getLocationService().saveLocation(location);
+			updateMflCodeCache(code, location);
+		}
 
 		Context.flushSession();
 		Context.clearSession();
@@ -172,7 +185,7 @@ public class SynchronizeFromRemoteSpreadsheetTask extends BaseSynchronizeTask {
 	 * @param cell the cell
 	 * @return the cell value
 	 */
-	private static Object cellValue(HSSFCell cell) {
+	private Object cellValue(HSSFCell cell) {
 		return cell.getCellType() == 0 ? cell.getNumericCellValue() : cell.getStringCellValue();
 	}
 }

@@ -16,54 +16,98 @@ package org.openmrs.module.kenyamflsync.web.controller;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.codehaus.jackson.map.ObjectMapper;
+import org.openmrs.LocationAttributeType;
 import org.openmrs.api.context.Context;
-import org.openmrs.module.kenyamflsync.KenyaMflSyncConstants;
-import org.openmrs.module.kenyamflsync.api.KenyaMflSyncService;
-import org.openmrs.module.kenyamflsync.task.BaseSynchronizeTask;
-import org.openmrs.module.kenyamflsync.task.SynchronizeFromRemoteSpreadsheetTask;
+import org.openmrs.module.kenyamflsync.SynchronizationOptions;
+import org.openmrs.module.kenyamflsync.task.BaseMflSyncTask;
+import org.openmrs.module.kenyamflsync.task.MflSyncFromRemoteSpreadsheetTask;
 import org.openmrs.module.kenyamflsync.task.TaskEngine;
+import org.openmrs.util.PrivilegeConstants;
+import org.openmrs.web.WebConstants;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Synchronization page controller
  */
 @Controller
-@RequestMapping("/module/kenyamflsync/synchronize")
+@RequestMapping()
 public class SynchronizeController {
 	
 	protected final Log log = LogFactory.getLog(SynchronizeController.class);
-	
-	@RequestMapping(method = RequestMethod.GET)
-	public String showForm(ModelMap model) {
-		model.addAttribute("spreadsheetUrl", KenyaMflSyncConstants.DEFAULT_SPREADSHEET_URL);
 
-		model.addAttribute("taskOutput", TaskEngine.getOutput());
+	/**
+	 * Handles requests to show the synchronize form
+	 * @param model the model
+	 * @return the view name
+	 */
+	@RequestMapping(value = "/module/kenyamflsync/synchronize", method = RequestMethod.GET)
+	public String showForm(@ModelAttribute("options") SynchronizationOptions options, ModelMap model) {
+
+		model.put("locationAttributeTypes", Context.getLocationService().getAllLocationAttributeTypes());
 
 		return "/module/kenyamflsync/synchronize";
 	}
 
-	@RequestMapping(method = RequestMethod.POST)
-	public String startTask(ModelMap model, @RequestParam("spreadsheetUrl") String spreadsheetUrl) {
+	/**
+	 * Handles requests to start a synchronization task
+	 * @param options the synchronization options
+	 * @param session the http session
+	 * @return the view name
+	 */
+	@RequestMapping(value = "/module/kenyamflsync/synchronize", method = RequestMethod.POST)
+	public String submit(@ModelAttribute("options") SynchronizationOptions options, ModelMap model, HttpSession session) {
 
 		try {
-			URL url = new URL(spreadsheetUrl);
+			if (!Context.hasPrivilege(PrivilegeConstants.MANAGE_LOCATIONS)) {
+				session.setAttribute(WebConstants.OPENMRS_ERROR_ATTR, "Insufficient privileges");
+			}
+			else {
+				URL url = new URL(options.getSpreadsheetUrl());
+				LocationAttributeType attrType = options.getAttributeType();
 
-			BaseSynchronizeTask task = new SynchronizeFromRemoteSpreadsheetTask(url);
-			TaskEngine.start(task);
+				BaseMflSyncTask task = new MflSyncFromRemoteSpreadsheetTask(attrType, url);
 
-			return "redirect:synchronize.form";
+				if (TaskEngine.start(task)) {
+					return "redirect:synchronize.form";
+				} else {
+					session.setAttribute(WebConstants.OPENMRS_ERROR_ATTR, "Task already running");
+				}
+			}
 		}
-		catch (MalformedURLException e) {
-			model.put("spreasheetUrlError", "Malformed URL");
+		catch (MalformedURLException ex) {
+			session.setAttribute(WebConstants.OPENMRS_ERROR_ATTR, "Invalid spreadsheet URL");
+			log.error(ex);
 		}
 
-		return "/module/kenyamflsync/synchronize";
+		return showForm(options, model);
+	}
+
+	/**
+	 * Handles requests to get the current task status
+	 * @param sinceMessageId the last message id fetched
+	 * @param response the http response
+	 * @throws Exception if an error occurs
+	 */
+	@RequestMapping(value = "/module/kenyamflsync/status", method = RequestMethod.GET)
+	@ResponseBody
+	public void status(@RequestParam(value = "sinceMessageId", required = false) Integer sinceMessageId, HttpServletResponse response) throws Exception {
+		Map<String, Object> status = new HashMap<String, Object>();
+
+		status.put("busy", TaskEngine.isBusy());
+		status.put("messages", TaskEngine.getMessagesSince(sinceMessageId));
+
+		ObjectMapper mapper = new ObjectMapper();
+		response.setContentType("application/json");
+		mapper.writeValue(response.getWriter(), status);
 	}
 }

@@ -15,10 +15,8 @@
 package org.openmrs.module.kenyamflsync.api;
 
 import org.openmrs.api.OpenmrsService;
-import org.openmrs.module.kenyamflsync.task.BaseSynchronizeTask;
+import org.openmrs.module.kenyamflsync.task.BaseTask;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.net.URL;
 
 /**
  * Module service interface
@@ -30,5 +28,5 @@ public interface KenyaMflSyncService extends OpenmrsService {
 	 * Internal only. Executes a synchronization task in a transaction
 	 * @param task the task to execute
 	 */
-	void executeTask(BaseSynchronizeTask task);
+	void executeTask(BaseTask task);
 }

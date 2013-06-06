@@ -18,7 +18,7 @@ import org.openmrs.api.impl.BaseOpenmrsService;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.openmrs.module.kenyamflsync.api.KenyaMflSyncService;
-import org.openmrs.module.kenyamflsync.task.BaseSynchronizeTask;
+import org.openmrs.module.kenyamflsync.task.BaseTask;
 
 /**
  * Default implementation of {@link org.openmrs.module.kenyamflsync.api.KenyaMflSyncService}
@@ -28,10 +28,10 @@ public class KenyaMflSyncServiceImpl extends BaseOpenmrsService implements Kenya
 	protected final Log log = LogFactory.getLog(KenyaMflSyncServiceImpl.class);
 
 	/**
-	 * @see KenyaMflSyncService#executeTask(org.openmrs.module.kenyamflsync.task.BaseSynchronizeTask)
+	 * @see KenyaMflSyncService#executeTask(org.openmrs.module.kenyamflsync.task.BaseTask)
 	 */
 	@Override
-	public void executeTask(BaseSynchronizeTask task) {
+	public void executeTask(BaseTask task) {
 		task.execute();
 	}
 }

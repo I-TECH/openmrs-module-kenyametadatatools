@@ -14,36 +14,85 @@
 
 package org.openmrs.module.kenyamflsync.task;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.openmrs.api.context.Context;
-import org.openmrs.api.context.UserContext;
+import org.openmrs.api.context.Daemon;
+import org.openmrs.module.DaemonToken;
 import org.openmrs.module.kenyamflsync.api.KenyaMflSyncService;
+
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 
 /**
  * Simple task engine which runs single task at a time
  */
 public class TaskEngine {
 
-	private static BaseSynchronizeTask activeTask;
+	protected final static Log log = LogFactory.getLog(TaskEngine.class);
+
+	private static BaseTask activeTask;
+
+	private static DaemonToken daemonToken;
 
 	private static boolean busy = false;
+
+	private static List<TaskMessage> messages = new ArrayList<TaskMessage>();
+
+	private static int lastMessageId = 0;
 
 	/**
 	 * Starts the specified task if engine is not busy
 	 * @param task the task to start
 	 * @return true if task was started, else false if engine is busy
 	 */
-	public static synchronized boolean start(BaseSynchronizeTask task) {
+	public static synchronized boolean start(BaseMflSyncTask task) {
 		if (busy) {
 			return false;
 		}
 
 		busy = true;
 		activeTask = task;
+		messages.clear();
 
 		TaskRunner runner = new TaskRunner(task);
-		Thread taskThread = new Thread(runner);
-		taskThread.start();
+
+		Daemon.runInDaemonThread(runner, daemonToken);
+
 		return true;
+	}
+
+	/**
+	 * Logs a message
+	 * @param object the object
+	 */
+	public static void log(Object object) {
+		log(object, false);
+	}
+
+	/**
+	 * Logs a message
+	 * @param object the object
+	 */
+	public static void logError(Object object) {
+		log(object, true);
+	}
+
+	/**
+	 * Logs a message or exception
+	 * @param object the object
+	 * @param error whether message is an error
+	 */
+	private static synchronized void log(Object object, boolean error) {
+		messages.add(new TaskMessage(++lastMessageId, object.toString(), error));
+
+		if (error) {
+			log.error(object);
+		}
+		else {
+			log.info(object);
+		}
 	}
 
 	/**
@@ -55,30 +104,54 @@ public class TaskEngine {
 	}
 
 	/**
-	 * Gets the output of the current task
-	 * @return
+	 * Sets the daemon token
+	 * @param token the token
 	 */
-	public static synchronized String getOutput() {
-		return (activeTask != null) ? activeTask.getOutput() : null;
+	public static void setDaemonToken(DaemonToken token) {
+		daemonToken = token;
+	}
+
+	/**
+	 * Gets the messages logged by this task
+	 * @return the messages
+	 */
+	public static synchronized List<TaskMessage> getMessages() {
+		return getMessagesSince(null);
+	}
+
+	/**
+	 * Gets the messages logged by this task after the given message id
+	 * @return the messages since specified message id
+	 */
+	public static synchronized List<TaskMessage> getMessagesSince(Integer messageId) {
+		if (messageId == null || messageId == 0) {
+			return messages;
+		}
+
+		List<TaskMessage> since = new ArrayList<TaskMessage>();
+		for (TaskMessage message : messages) {
+			if (message.getId() > messageId) {
+				since.add(message);
+			}
+		}
+		return since;
+
 	}
 
 	/**
 	 * Runner for executing tasks in separate thread
 	 */
-	public static class TaskRunner implements Runnable {
+	private static class TaskRunner implements Runnable {
 
-		private BaseSynchronizeTask task;
-		private UserContext userContext;
+		private BaseTask task;
 
-		public TaskRunner(BaseSynchronizeTask task) {
+		public TaskRunner(BaseMflSyncTask task) {
 			this.task = task;
-			this.userContext = Context.getUserContext();
 		}
 
 		@Override
 		public void run() {
 			try {
-				Context.setUserContext(userContext);
 				Context.getService(KenyaMflSyncService.class).executeTask(task);
 			}
 			catch (Exception ex) {
@@ -87,6 +160,65 @@ public class TaskEngine {
 			finally {
 				busy = false;
 			}
+		}
+	}
+
+	/**
+	 * A timestamped message
+	 */
+	public static class TaskMessage {
+
+		private int id;
+
+		private Date timestamp;
+
+		private String message;
+
+		private boolean error;
+
+		/**
+		 * Constructs a task message
+		 * @param id the message id
+		 * @param message the message
+		 * @param error whether message is error
+		 */
+		public TaskMessage(int id, String message, boolean error) {
+			this.id = id;
+			this.timestamp = new Date();
+			this.message = message;
+			this.error = error;
+		}
+
+		/**
+		 * Gets the message id
+		 * @return the id
+		 */
+		public int getId() {
+			return id;
+		}
+
+		/**
+		 * Gets the message timestamp
+		 * @return the timestamp
+		 */
+		public Date getTimestamp() {
+			return timestamp;
+		}
+
+		/**
+		 * Gets the message text
+		 * @return the message text
+		 */
+		public String getMessage() {
+			return message;
+		}
+
+		/**
+		 * Gets whether message is an error
+		 * @return true if message is error
+		 */
+		public boolean isError() {
+			return error;
 		}
 	}
 }
