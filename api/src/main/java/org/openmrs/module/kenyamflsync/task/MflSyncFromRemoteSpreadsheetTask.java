@@ -150,6 +150,8 @@ public class MflSyncFromRemoteSpreadsheetTask extends BaseMflSyncTask {
 			// Un-retire location if necessary
 			if (location.getRetired()) {
 				location.setRetired(false);
+				location.setRetiredBy(null);
+				location.setRetireReason(null);
 				doUpdate = true;
 			}
 			else {

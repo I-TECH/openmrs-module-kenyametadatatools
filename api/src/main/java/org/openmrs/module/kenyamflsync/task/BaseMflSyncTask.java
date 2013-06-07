@@ -19,10 +19,7 @@ import org.openmrs.LocationAttribute;
 import org.openmrs.LocationAttributeType;
 import org.openmrs.api.context.Context;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 /**
  * Base class for synchronize tasks
@@ -38,6 +35,8 @@ public abstract class BaseMflSyncTask extends BaseTask {
 	protected int createdCount = 0;
 
 	protected int updatedCount = 0;
+
+	protected int retiredCount = 0;
 
 	/**
 	 * Constructs new synchronization task
@@ -64,15 +63,29 @@ public abstract class BaseMflSyncTask extends BaseTask {
 
 			// Examine existing locations
 			for (Location loc : Context.getLocationService().getAllLocations(true)) {
-				for (LocationAttribute attr : loc.getActiveAttributes(mfcAttrType)) {
-					if (attr.getValue() != null) {
-						updateMflCodeCache((String) attr.getValue(), loc);
+				List<LocationAttribute> mfcAttrs = loc.getActiveAttributes(mfcAttrType);
+
+				if (mfcAttrs.size() == 0) {
+					TaskEngine.log("Ignoring location '" + loc.getName() + "' with no MFL code");
+				}
+				else if (mfcAttrs.size() > 1) {
+					TaskEngine.log("Ignoring location '" + loc.getName() + "' with multiple MFL codes");
+				}
+				else {
+					String mflCode = (String) mfcAttrs.get(0).getValue();
+
+					// Check there isn't another location with this code
+					if (lookupMflCodeCache(mflCode) != null) {
+						TaskEngine.log("Ignoring location '" + loc.getName() + "' with duplicate MFL code " + mflCode);
+					}
+					else {
+						updateMflCodeCache(mflCode, loc);
 						notSyncedLocations.add(loc.getLocationId());
 					}
 				}
 			}
 
-			TaskEngine.log("Cached " + mflCodeCache.size() + " existing locations with MFL codes");
+			TaskEngine.log("Loaded " + mflCodeCache.size() + " existing locations with MFL codes");
 
 			// Delegate to the sub-class to do the actual import
 			doImport();
@@ -80,17 +93,23 @@ public abstract class BaseMflSyncTask extends BaseTask {
 			// Retire locations that weren't in the MFL
 			for (Integer notSyncedLocId : notSyncedLocations) {
 				Location notSyncedLoc = Context.getLocationService().getLocation(notSyncedLocId);
-				notSyncedLoc.setRetired(true);
-				notSyncedLoc.setRetiredBy(Context.getAuthenticatedUser());
-				notSyncedLoc.setRetireReason("No longer in MFL");
-				Context.getLocationService().saveLocation(notSyncedLoc);
+				if (!notSyncedLoc.getRetired()) {
+					notSyncedLoc.setRetired(true);
+					notSyncedLoc.setRetiredBy(Context.getAuthenticatedUser());
+					notSyncedLoc.setRetireReason("No longer in MFL");
+					Context.getLocationService().saveLocation(notSyncedLoc);
+
+					TaskEngine.log("Retired existing location '" + notSyncedLoc.getName() + "'");
+					retiredCount++;
+				}
 			}
 
 			// Log sync statistics
-			TaskEngine.log("Synchronization complete");
+			TaskEngine.log("Synchronization complete:");
 			TaskEngine.log(" * Created " + getCreatedCount() + " new locations");
 			TaskEngine.log(" * Updated " + getUpdatedCount() + " existing locations");
-			TaskEngine.log(" * Retired " + notSyncedLocations.size() + " locations not listed in MFL");
+			TaskEngine.log(" * Retired " + getRetiredCount() + " locations no longer in MFL");
+			TaskEngine.log(" * Database contains " + Context.getLocationService().getAllLocations(false).size() + " non-retired locations");
 		}
 		catch (Exception ex) {
 			TaskEngine.logError("Synchronization failed");
@@ -147,5 +166,13 @@ public abstract class BaseMflSyncTask extends BaseTask {
 	 */
 	public int getUpdatedCount() {
 		return updatedCount;
+	}
+
+	/**
+	 * Gets the count of retired locations
+	 * @return the count
+	 */
+	public int getRetiredCount() {
+		return retiredCount;
 	}
 }
