@@ -24,9 +24,9 @@ import java.security.NoSuchAlgorithmException;
 /**
  * Utility methods
  */
-public class KenyaMflSyncUtils {
+public class MflSyncUtils {
 
-	private static final Log log = LogFactory.getLog(KenyaMflSyncUtils.class);
+	private static final Log log = LogFactory.getLog(MflSyncUtils.class);
 
 	private static MessageDigest md5Digest;
 

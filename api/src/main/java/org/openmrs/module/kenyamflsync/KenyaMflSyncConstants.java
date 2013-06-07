@@ -21,5 +21,5 @@ public class KenyaMflSyncConstants {
 
 	public static final String MODULE_ID = "kenyamflsync";
 
-	public static final String DEFAULT_SPREADSHEET_URL = "http://ehealth.or.ke/facilities/download-latest.aspx";
+	public static final String DEFAULT_MFL_SYNC_URL = "http://ehealth.or.ke/facilities/download-latest.aspx";
 }

@@ -20,7 +20,9 @@ import org.openmrs.LocationAttributeType;
 import org.openmrs.api.context.Context;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * Base class for synchronize tasks
@@ -31,7 +33,7 @@ public abstract class BaseMflSyncTask extends BaseTask {
 
 	protected Map<String, Integer> mflCodeCache = new HashMap<String, Integer>();
 
-	protected int existingCount = 0;
+	protected Set<Integer> notSyncedLocations = new HashSet<Integer>();
 
 	protected int createdCount = 0;
 
@@ -60,21 +62,35 @@ public abstract class BaseMflSyncTask extends BaseTask {
 
 			LocationAttributeType mfcAttrType = getMflCodeAttributeType();
 
-			for (Location loc : Context.getLocationService().getAllLocations()) {
+			// Examine existing locations
+			for (Location loc : Context.getLocationService().getAllLocations(true)) {
 				for (LocationAttribute attr : loc.getActiveAttributes(mfcAttrType)) {
 					if (attr.getValue() != null) {
 						updateMflCodeCache((String) attr.getValue(), loc);
+						notSyncedLocations.add(loc.getLocationId());
 					}
 				}
 			}
 
-			existingCount = mflCodeCache.size();
+			TaskEngine.log("Cached " + mflCodeCache.size() + " existing locations with MFL codes");
 
-			TaskEngine.log("Cached " + getExistingCount() + " existing locations with MFL codes");
-
+			// Delegate to the sub-class to do the actual import
 			doImport();
 
-			TaskEngine.log("Synchronization complete. Created " + getCreatedCount() + " new locations and updated " + getUpdatedCount() + " of " + getExistingCount() + " existing locations");
+			// Retire locations that weren't in the MFL
+			for (Integer notSyncedLocId : notSyncedLocations) {
+				Location notSyncedLoc = Context.getLocationService().getLocation(notSyncedLocId);
+				notSyncedLoc.setRetired(true);
+				notSyncedLoc.setRetiredBy(Context.getAuthenticatedUser());
+				notSyncedLoc.setRetireReason("No longer in MFL");
+				Context.getLocationService().saveLocation(notSyncedLoc);
+			}
+
+			// Log sync statistics
+			TaskEngine.log("Synchronization complete");
+			TaskEngine.log(" * Created " + getCreatedCount() + " new locations");
+			TaskEngine.log(" * Updated " + getUpdatedCount() + " existing locations");
+			TaskEngine.log(" * Retired " + notSyncedLocations.size() + " locations not listed in MFL");
 		}
 		catch (Exception ex) {
 			TaskEngine.logError("Synchronization failed");
@@ -102,19 +118,19 @@ public abstract class BaseMflSyncTask extends BaseTask {
 	}
 
 	/**
+	 * Marks a location as synced
+	 * @param location the location
+	 */
+	protected void markLocationSynced(Location location) {
+		notSyncedLocations.remove(location.getLocationId());
+	}
+
+	/**
 	 * Gets the location attribute type for MFL codes
 	 * @return the attribute type
 	 */
 	protected LocationAttributeType getMflCodeAttributeType() {
 		return Context.getLocationService().getLocationAttributeType(mflCodeAttrTypeId);
-	}
-
-	/**
-	 * Gets the count of existing locations
-	 * @return the count
-	 */
-	public int getExistingCount() {
-		return existingCount;
 	}
 
 	/**

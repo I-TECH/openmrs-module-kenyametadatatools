@@ -20,17 +20,17 @@ import org.junit.Test;
 import static org.hamcrest.CoreMatchers.*;
 
 /**
- * Tests for {@link KenyaMflSyncUtils}
+ * Tests for {@link MflSyncUtils}
  */
-public class KenyaMflSyncUtilsTest {
+public class MflSyncUtilsTest {
 
 	/**
-	 * @see KenyaMflSyncUtils#hash(String...)
+	 * @see MflSyncUtils#hash(String...)
 	 */
 	@Test
 	public void hash_shouldComputeSuitableHash() {
-		Assert.assertThat(KenyaMflSyncUtils.hash("qwerty", "dvorak"), is(KenyaMflSyncUtils.hash("qwerty", "dvorak")));
-		Assert.assertThat(KenyaMflSyncUtils.hash("qwerty", "dvorak"), is(not(KenyaMflSyncUtils.hash("dvorak", "qwerty"))));
-		Assert.assertThat(KenyaMflSyncUtils.hash("qwerty", null), is(not(KenyaMflSyncUtils.hash(null, "qwerty"))));
+		Assert.assertThat(MflSyncUtils.hash("qwerty", "dvorak"), is(MflSyncUtils.hash("qwerty", "dvorak")));
+		Assert.assertThat(MflSyncUtils.hash("qwerty", "dvorak"), is(not(MflSyncUtils.hash("dvorak", "qwerty"))));
+		Assert.assertThat(MflSyncUtils.hash("qwerty", null), is(not(MflSyncUtils.hash(null, "qwerty"))));
 	}
 }

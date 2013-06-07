@@ -19,7 +19,7 @@ import org.apache.commons.logging.LogFactory;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.openmrs.LocationAttributeType;
 import org.openmrs.api.context.Context;
-import org.openmrs.module.kenyamflsync.SynchronizationOptions;
+import org.openmrs.module.kenyamflsync.MflSyncOptions;
 import org.openmrs.module.kenyamflsync.task.BaseMflSyncTask;
 import org.openmrs.module.kenyamflsync.task.MflSyncFromRemoteSpreadsheetTask;
 import org.openmrs.module.kenyamflsync.task.TaskEngine;
@@ -51,7 +51,7 @@ public class SynchronizeController {
 	 * @return the view name
 	 */
 	@RequestMapping(value = "/module/kenyamflsync/synchronize", method = RequestMethod.GET)
-	public String showForm(@ModelAttribute("options") SynchronizationOptions options, ModelMap model) {
+	public String showForm(@ModelAttribute("options") MflSyncOptions options, ModelMap model) {
 
 		model.put("locationAttributeTypes", Context.getLocationService().getAllLocationAttributeTypes());
 
@@ -65,7 +65,7 @@ public class SynchronizeController {
 	 * @return the view name
 	 */
 	@RequestMapping(value = "/module/kenyamflsync/synchronize", method = RequestMethod.POST)
-	public String submit(@ModelAttribute("options") SynchronizationOptions options, ModelMap model, HttpSession session) {
+	public String submit(@ModelAttribute("options") MflSyncOptions options, ModelMap model, HttpSession session) {
 
 		try {
 			if (!Context.hasPrivilege(PrivilegeConstants.MANAGE_LOCATIONS)) {

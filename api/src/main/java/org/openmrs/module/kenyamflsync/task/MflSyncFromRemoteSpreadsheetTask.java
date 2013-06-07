@@ -24,7 +24,7 @@ import org.openmrs.Location;
 import org.openmrs.LocationAttribute;
 import org.openmrs.LocationAttributeType;
 import org.openmrs.api.context.Context;
-import org.openmrs.module.kenyamflsync.KenyaMflSyncUtils;
+import org.openmrs.module.kenyamflsync.MflSyncUtils;
 import org.openmrs.util.OpenmrsUtil;
 
 import java.io.*;
@@ -147,13 +147,20 @@ public class MflSyncFromRemoteSpreadsheetTask extends BaseMflSyncTask {
 			doCreate = true;
 		}
 		else {
-			// Compute hashes of existing location fields and incoming fields
-			String incomingHash = KenyaMflSyncUtils.hash(locationName, locationDescription, locationStateProvince, locationCountry);
-			String existingHash = KenyaMflSyncUtils.hash(location.getName(), location.getDescription(), location.getStateProvince(), location.getCountry());
-
-			// Only update if hashes are different
-			if (!incomingHash.equals(existingHash)) {
+			// Un-retire location if necessary
+			if (location.getRetired()) {
+				location.setRetired(false);
 				doUpdate = true;
+			}
+			else {
+				// Compute hashes of existing location fields and incoming fields
+				String incomingHash = MflSyncUtils.hash(locationName, locationDescription, locationStateProvince, locationCountry);
+				String existingHash = MflSyncUtils.hash(location.getName(), location.getDescription(), location.getStateProvince(), location.getCountry());
+
+				// Only update if hashes are different
+				if (!incomingHash.equals(existingHash)) {
+					doUpdate = true;
+				}
 			}
 		}
 
@@ -175,6 +182,8 @@ public class MflSyncFromRemoteSpreadsheetTask extends BaseMflSyncTask {
 			Context.getLocationService().saveLocation(location);
 			updateMflCodeCache(code, location);
 		}
+
+		markLocationSynced(location);
 
 		Context.flushSession();
 		Context.clearSession();
