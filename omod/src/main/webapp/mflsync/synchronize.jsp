@@ -42,8 +42,10 @@
 			}
 
 			// Auto-scroll to end of messages
-			var consoleElmt = jQuery('#console').get(0);
-			consoleElmt.scrollTop = consoleElmt.scrollHeight;
+			if (data.messages.length > 0) {
+				var consoleElmt = jQuery('#console').get(0);
+				consoleElmt.scrollTop = consoleElmt.scrollHeight;
+			}
 
 			setTimeout("update_status()", 2000);
 		});
