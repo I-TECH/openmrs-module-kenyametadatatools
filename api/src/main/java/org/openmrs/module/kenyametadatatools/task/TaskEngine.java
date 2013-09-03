@@ -12,14 +12,15 @@
  * Copyright (C) OpenMRS, LLC.  All Rights Reserved.
  */
 
-package org.openmrs.module.kenyamflsync.task;
+package org.openmrs.module.kenyametadatatools.task;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.openmrs.api.context.Context;
 import org.openmrs.api.context.Daemon;
 import org.openmrs.module.DaemonToken;
-import org.openmrs.module.kenyamflsync.api.KenyaMflSyncService;
+import org.openmrs.module.kenyametadatatools.api.MetadataToolsService;
+import org.openmrs.module.kenyametadatatools.mflsync.BaseMflSyncTask;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -152,7 +153,7 @@ public class TaskEngine {
 		@Override
 		public void run() {
 			try {
-				Context.getService(KenyaMflSyncService.class).executeTask(task);
+				Context.getService(MetadataToolsService.class).executeTask(task);
 			}
 			catch (Exception ex) {
 				ex.printStackTrace();

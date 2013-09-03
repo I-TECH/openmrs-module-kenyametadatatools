@@ -12,20 +12,14 @@
  * Copyright (C) OpenMRS, LLC.  All Rights Reserved.
  */
 
-package org.openmrs.module.kenyamflsync.api;
-
-import static org.junit.Assert.*;
-import org.junit.Test;
-import org.openmrs.api.context.Context;
-import org.openmrs.test.BaseModuleContextSensitiveTest;
+package org.openmrs.module.kenyametadatatools;
 
 /**
- * Tests for {@link KenyaMflSyncService}
+ * Module contants
  */
-public class KenyaMflSyncServiceTest extends BaseModuleContextSensitiveTest {
-	
-	@Test
-	public void shouldSetupContext() {
-		assertNotNull(Context.getService(KenyaMflSyncService.class));
-	}
+public class MetadataToolsConstants {
+
+	public static final String MODULE_ID = "kenyametadatatools";
+
+	public static final String DEFAULT_MFL_SYNC_URL = "http://ehealth.or.ke/facilities/download-latest.aspx";
 }

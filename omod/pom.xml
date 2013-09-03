@@ -3,14 +3,14 @@
 
 	<parent>
 		<groupId>org.openmrs.module</groupId>
-		<artifactId>kenyamflsync</artifactId>
+		<artifactId>kenyametadatatools</artifactId>
 		<version>1.2-SNAPSHOT</version>
 	</parent>
 
-	<artifactId>kenyamflsync-omod</artifactId>
+	<artifactId>kenyametadatatools-omod</artifactId>
 	<packaging>jar</packaging>
-	<name>Kenya MFL Synchronization Module OMOD</name>
-	<description>OMOD project for KenyaMFLSynchronization</description>
+	<name>Kenya Metadata Tools OMOD</name>
+	<description>OMOD project for Kenya Metadata Tools</description>
 
 	<dependencies>
 		<dependency>

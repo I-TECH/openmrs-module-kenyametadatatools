@@ -12,7 +12,7 @@
  * Copyright (C) OpenMRS, LLC.  All Rights Reserved.
  */
 
-package org.openmrs.module.kenyamflsync;
+package org.openmrs.module.kenyametadatatools;
 
 import org.apache.commons.codec.binary.Hex;
 import org.apache.commons.logging.Log;
@@ -24,9 +24,9 @@ import java.security.NoSuchAlgorithmException;
 /**
  * Utility methods
  */
-public class MflSyncUtils {
+public class MetadataToolsUtils {
 
-	private static final Log log = LogFactory.getLog(MflSyncUtils.class);
+	private static final Log log = LogFactory.getLog(MetadataToolsUtils.class);
 
 	private static MessageDigest md5Digest;
 

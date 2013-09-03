@@ -12,7 +12,7 @@
  * Copyright (C) OpenMRS, LLC.  All Rights Reserved.
  */
 
-package org.openmrs.module.kenyamflsync.task;
+package org.openmrs.module.kenyametadatatools.task;
 
 /**
  * Base class for tasks

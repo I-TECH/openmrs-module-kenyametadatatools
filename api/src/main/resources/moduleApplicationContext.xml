@@ -8,14 +8,14 @@
 	<bean parent="serviceContext">
 		<property name="moduleService">
 			<list>
-				<value>${project.parent.groupId}.${project.parent.artifactId}.api.KenyaMflSyncService</value>
+				<value>${project.parent.groupId}.${project.parent.artifactId}.api.MetadataToolsService</value>
 				<bean
 					class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean">
 					<property name="transactionManager">
 						<ref bean="transactionManager" />
 					</property>
 					<property name="target">
-						<bean class="${project.parent.groupId}.${project.parent.artifactId}.api.impl.KenyaMflSyncServiceImpl" />
+						<bean class="${project.parent.groupId}.${project.parent.artifactId}.api.impl.MetadataToolsServiceImpl" />
 					</property>
 					<property name="preInterceptors">
 						<ref bean="serviceInterceptors" />

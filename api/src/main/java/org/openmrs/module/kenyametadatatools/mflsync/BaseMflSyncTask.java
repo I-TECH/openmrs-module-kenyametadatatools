@@ -12,12 +12,14 @@
  * Copyright (C) OpenMRS, LLC.  All Rights Reserved.
  */
 
-package org.openmrs.module.kenyamflsync.task;
+package org.openmrs.module.kenyametadatatools.mflsync;
 
 import org.openmrs.Location;
 import org.openmrs.LocationAttribute;
 import org.openmrs.LocationAttributeType;
 import org.openmrs.api.context.Context;
+import org.openmrs.module.kenyametadatatools.task.BaseTask;
+import org.openmrs.module.kenyametadatatools.task.TaskEngine;
 
 import java.util.*;
 

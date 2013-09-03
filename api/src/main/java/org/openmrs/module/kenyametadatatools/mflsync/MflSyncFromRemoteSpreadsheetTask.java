@@ -12,7 +12,7 @@
  * Copyright (C) OpenMRS, LLC.  All Rights Reserved.
  */
 
-package org.openmrs.module.kenyamflsync.task;
+package org.openmrs.module.kenyametadatatools.mflsync;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.poi.hssf.usermodel.HSSFCell;
@@ -24,7 +24,9 @@ import org.openmrs.Location;
 import org.openmrs.LocationAttribute;
 import org.openmrs.LocationAttributeType;
 import org.openmrs.api.context.Context;
-import org.openmrs.module.kenyamflsync.MflSyncUtils;
+import org.openmrs.module.kenyametadatatools.MetadataToolsUtils;
+import org.openmrs.module.kenyametadatatools.mflsync.BaseMflSyncTask;
+import org.openmrs.module.kenyametadatatools.task.TaskEngine;
 import org.openmrs.util.OpenmrsUtil;
 
 import java.io.*;
@@ -156,8 +158,8 @@ public class MflSyncFromRemoteSpreadsheetTask extends BaseMflSyncTask {
 			}
 			else {
 				// Compute hashes of existing location fields and incoming fields
-				String incomingHash = MflSyncUtils.hash(locationName, locationDescription, locationStateProvince, locationCountry);
-				String existingHash = MflSyncUtils.hash(location.getName(), location.getDescription(), location.getStateProvince(), location.getCountry());
+				String incomingHash = MetadataToolsUtils.hash(locationName, locationDescription, locationStateProvince, locationCountry);
+				String existingHash = MetadataToolsUtils.hash(location.getName(), location.getDescription(), location.getStateProvince(), location.getCountry());
 
 				// Only update if hashes are different
 				if (!incomingHash.equals(existingHash)) {

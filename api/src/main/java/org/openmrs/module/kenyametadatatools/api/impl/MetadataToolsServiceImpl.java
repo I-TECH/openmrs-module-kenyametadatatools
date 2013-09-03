@@ -12,23 +12,23 @@
  * Copyright (C) OpenMRS, LLC.  All Rights Reserved.
  */
 
-package org.openmrs.module.kenyamflsync.api.impl;
+package org.openmrs.module.kenyametadatatools.api.impl;
 
 import org.openmrs.api.impl.BaseOpenmrsService;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.openmrs.module.kenyamflsync.api.KenyaMflSyncService;
-import org.openmrs.module.kenyamflsync.task.BaseTask;
+import org.openmrs.module.kenyametadatatools.api.MetadataToolsService;
+import org.openmrs.module.kenyametadatatools.task.BaseTask;
 
 /**
- * Default implementation of {@link org.openmrs.module.kenyamflsync.api.KenyaMflSyncService}
+ * Default implementation of {@link org.openmrs.module.kenyametadatatools.api.MetadataToolsService}
  */
-public class KenyaMflSyncServiceImpl extends BaseOpenmrsService implements KenyaMflSyncService {
+public class MetadataToolsServiceImpl extends BaseOpenmrsService implements MetadataToolsService {
 
-	protected final Log log = LogFactory.getLog(KenyaMflSyncServiceImpl.class);
+	protected final Log log = LogFactory.getLog(MetadataToolsServiceImpl.class);
 
 	/**
-	 * @see KenyaMflSyncService#executeTask(org.openmrs.module.kenyamflsync.task.BaseTask)
+	 * @see org.openmrs.module.kenyametadatatools.api.MetadataToolsService#executeTask(org.openmrs.module.kenyametadatatools.task.BaseTask)
 	 */
 	@Override
 	public void executeTask(BaseTask task) {

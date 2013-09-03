@@ -12,7 +12,7 @@
  * Copyright (C) OpenMRS, LLC.  All Rights Reserved.
  */
 
-package org.openmrs.module.kenyamflsync;
+package org.openmrs.module.kenyametadatatools;
 
 import org.junit.Assert;
 import org.junit.Test;
@@ -20,17 +20,17 @@ import org.junit.Test;
 import static org.hamcrest.CoreMatchers.*;
 
 /**
- * Tests for {@link MflSyncUtils}
+ * Tests for {@link MetadataToolsUtils}
  */
-public class MflSyncUtilsTest {
+public class MetadataToolsUtilsTest {
 
 	/**
-	 * @see MflSyncUtils#hash(String...)
+	 * @see MetadataToolsUtils#hash(String...)
 	 */
 	@Test
 	public void hash_shouldComputeSuitableHash() {
-		Assert.assertThat(MflSyncUtils.hash("qwerty", "dvorak"), is(MflSyncUtils.hash("qwerty", "dvorak")));
-		Assert.assertThat(MflSyncUtils.hash("qwerty", "dvorak"), is(not(MflSyncUtils.hash("dvorak", "qwerty"))));
-		Assert.assertThat(MflSyncUtils.hash("qwerty", null), is(not(MflSyncUtils.hash(null, "qwerty"))));
+		Assert.assertThat(MetadataToolsUtils.hash("qwerty", "dvorak"), is(MetadataToolsUtils.hash("qwerty", "dvorak")));
+		Assert.assertThat(MetadataToolsUtils.hash("qwerty", "dvorak"), not(MetadataToolsUtils.hash("dvorak", "qwerty")));
+		Assert.assertThat(MetadataToolsUtils.hash("qwerty", null), not(MetadataToolsUtils.hash(null, "qwerty")));
 	}
 }

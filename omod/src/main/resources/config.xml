@@ -8,7 +8,7 @@
 	<description>${project.parent.description}</description>
 	<updateURL>https://modules.openmrs.org/modules/download/${project.parent.artifactId}/update.rdf</updateURL>
 	<require_version>${openMRSVersion}</require_version>
-	<activator>${project.parent.groupId}.${project.parent.artifactId}.KenyaMflSyncActivator</activator>
+	<activator>${project.parent.groupId}.${project.parent.artifactId}.MetadataToolsActivator</activator>
 	<extension>
 		<point>org.openmrs.admin.list</point>
 		<class>${project.parent.groupId}.${project.parent.artifactId}.extension.html.AdminList</class>

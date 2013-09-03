@@ -12,17 +12,17 @@
  * Copyright (C) OpenMRS, LLC.  All Rights Reserved.
  */
 
-package org.openmrs.module.kenyamflsync.web.controller;
+package org.openmrs.module.kenyametadatatools.web.controller.mflsync;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.openmrs.LocationAttributeType;
 import org.openmrs.api.context.Context;
-import org.openmrs.module.kenyamflsync.MflSyncOptions;
-import org.openmrs.module.kenyamflsync.task.BaseMflSyncTask;
-import org.openmrs.module.kenyamflsync.task.MflSyncFromRemoteSpreadsheetTask;
-import org.openmrs.module.kenyamflsync.task.TaskEngine;
+import org.openmrs.module.kenyametadatatools.mflsync.MflSyncOptions;
+import org.openmrs.module.kenyametadatatools.mflsync.BaseMflSyncTask;
+import org.openmrs.module.kenyametadatatools.mflsync.MflSyncFromRemoteSpreadsheetTask;
+import org.openmrs.module.kenyametadatatools.task.TaskEngine;
 import org.openmrs.util.PrivilegeConstants;
 import org.openmrs.web.WebConstants;
 import org.springframework.stereotype.Controller;
@@ -40,7 +40,6 @@ import java.util.Map;
  * Synchronization page controller
  */
 @Controller
-@RequestMapping()
 public class SynchronizeController {
 	
 	protected final Log log = LogFactory.getLog(SynchronizeController.class);
@@ -50,12 +49,12 @@ public class SynchronizeController {
 	 * @param model the model
 	 * @return the view name
 	 */
-	@RequestMapping(value = "/module/kenyamflsync/synchronize", method = RequestMethod.GET)
+	@RequestMapping(value = "/module/kenyametadatatools/mflsync/synchronize", method = RequestMethod.GET)
 	public String showForm(@ModelAttribute("options") MflSyncOptions options, ModelMap model) {
 
 		model.put("locationAttributeTypes", Context.getLocationService().getAllLocationAttributeTypes());
 
-		return "/module/kenyamflsync/synchronize";
+		return "/module/kenyametadatatools/mflsync/synchronize";
 	}
 
 	/**
@@ -64,7 +63,7 @@ public class SynchronizeController {
 	 * @param session the http session
 	 * @return the view name
 	 */
-	@RequestMapping(value = "/module/kenyamflsync/synchronize", method = RequestMethod.POST)
+	@RequestMapping(value = "/module/kenyametadatatools/mflsync/synchronize", method = RequestMethod.POST)
 	public String submit(@ModelAttribute("options") MflSyncOptions options, ModelMap model, HttpSession session) {
 
 		try {
@@ -98,7 +97,7 @@ public class SynchronizeController {
 	 * @param response the http response
 	 * @throws Exception if an error occurs
 	 */
-	@RequestMapping(value = "/module/kenyamflsync/status", method = RequestMethod.GET)
+	@RequestMapping(value = "/module/kenyametadatatools/mflsync/status", method = RequestMethod.GET)
 	@ResponseBody
 	public void status(@RequestParam(value = "sinceMessageId", required = false) Integer sinceMessageId, HttpServletResponse response) throws Exception {
 		Map<String, Object> status = new HashMap<String, Object>();

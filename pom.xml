@@ -3,12 +3,12 @@
 	<modelVersion>4.0.0</modelVersion>
 
 	<groupId>org.openmrs.module</groupId>
-	<artifactId>kenyamflsync</artifactId>
+	<artifactId>kenyametadatatools</artifactId>
 	<version>1.2-SNAPSHOT</version>
 
 	<packaging>pom</packaging>
-	<name>Kenya MFL Synchronization Module</name>
-	<description>Synchronizes OpenMRS locations with the Kenya Master Facility List</description>
+	<name>Kenya Metadata Tools</name>
+	<description>Tools for metadata management including synchronizing with the Master Facility List</description>
 
 	<developers>
 		<developer>
@@ -22,9 +22,9 @@
 	</organization>
 
 	<scm>
-		<connection>scm:git:git@github.com:I-TECH/openmrs-module-kenyamflsync.git</connection>
-		<developerConnection>scm:git:git@github.com:I-TECH/openmrs-module-kenyamflsync.git</developerConnection>
-		<url>scm:git:git@github.com:I-TECH/openmrs-module-kenyamflsync.git</url>
+		<connection>scm:git:git@github.com:I-TECH/openmrs-module-kenyametadatatools.git</connection>
+		<developerConnection>scm:git:git@github.com:I-TECH/openmrs-module-kenyametadatatools.git</developerConnection>
+		<url>scm:git:git@github.com:I-TECH/openmrs-module-kenyametadatatools.git</url>
 		<tag>HEAD</tag>
 	</scm>
 

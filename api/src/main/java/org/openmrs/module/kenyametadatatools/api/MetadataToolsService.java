@@ -12,17 +12,17 @@
  * Copyright (C) OpenMRS, LLC.  All Rights Reserved.
  */
 
-package org.openmrs.module.kenyamflsync.api;
+package org.openmrs.module.kenyametadatatools.api;
 
 import org.openmrs.api.OpenmrsService;
-import org.openmrs.module.kenyamflsync.task.BaseTask;
+import org.openmrs.module.kenyametadatatools.task.BaseTask;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
  * Module service interface
  */
 @Transactional
-public interface KenyaMflSyncService extends OpenmrsService {
+public interface MetadataToolsService extends OpenmrsService {
 
 	/**
 	 * Internal only. Executes a synchronization task in a transaction

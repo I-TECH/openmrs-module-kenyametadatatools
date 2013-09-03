@@ -12,7 +12,7 @@
  * Copyright (C) OpenMRS, LLC.  All Rights Reserved.
  */
 
-package org.openmrs.module.kenyamflsync.extension.html;
+package org.openmrs.module.kenyametadatatools.extension.html;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -21,8 +21,7 @@ import org.openmrs.module.Extension;
 import org.openmrs.module.web.extension.AdministrationSectionExt;
 
 /**
- * This class defines the links that will appear on the administration page under the
- * "kenyamflsync.title" heading. 
+ * This class defines the links that will appear on the administration page
  */
 public class AdminList extends AdministrationSectionExt {
 	
@@ -37,7 +36,7 @@ public class AdminList extends AdministrationSectionExt {
 	 * @see AdministrationSectionExt#getTitle()
 	 */
 	public String getTitle() {
-		return "kenyamflsync.title";
+		return "kenyametadatatools.title";
 	}
 	
 	/**
@@ -45,7 +44,7 @@ public class AdminList extends AdministrationSectionExt {
 	 */
 	public Map<String, String> getLinks() {
 		LinkedHashMap<String, String> map = new LinkedHashMap<String, String>();
-		map.put("/module/kenyamflsync/synchronize.form", "kenyamflsync.synchronize");
+		map.put("/module/kenyametadatatools/mflsync/synchronize.form", "kenyametadatatools.mflsync.title");
 		return map;
 	}
 }

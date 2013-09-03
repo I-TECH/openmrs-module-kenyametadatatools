@@ -12,21 +12,21 @@
  * Copyright (C) OpenMRS, LLC.  All Rights Reserved.
  */
 
-package org.openmrs.module.kenyamflsync;
+package org.openmrs.module.kenyametadatatools;
 
 import org.apache.commons.logging.Log; 
 import org.apache.commons.logging.LogFactory;
 import org.openmrs.module.DaemonToken;
 import org.openmrs.module.DaemonTokenAware;
 import org.openmrs.module.ModuleActivator;
-import org.openmrs.module.kenyamflsync.task.TaskEngine;
+import org.openmrs.module.kenyametadatatools.task.TaskEngine;
 
 /**
  * This class contains the logic that is run every time this module is either started or stopped.
  */
-public class KenyaMflSyncActivator implements ModuleActivator, DaemonTokenAware {
+public class MetadataToolsActivator implements ModuleActivator, DaemonTokenAware {
 	
-	protected static Log log = LogFactory.getLog(KenyaMflSyncActivator.class);
+	protected static Log log = LogFactory.getLog(MetadataToolsActivator.class);
 
 	/**
 	 * @see DaemonTokenAware#setDaemonToken(org.openmrs.module.DaemonToken)

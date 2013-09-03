@@ -12,9 +12,10 @@
  * Copyright (C) OpenMRS, LLC.  All Rights Reserved.
  */
 
-package org.openmrs.module.kenyamflsync;
+package org.openmrs.module.kenyametadatatools.mflsync;
 
 import org.openmrs.LocationAttributeType;
+import org.openmrs.module.kenyametadatatools.MetadataToolsConstants;
 
 /**
  * Options for MFL synchronization
@@ -26,7 +27,7 @@ public class MflSyncOptions {
 	private String spreadsheetUrl;
 
 	public MflSyncOptions() {
-		this.spreadsheetUrl = KenyaMflSyncConstants.DEFAULT_MFL_SYNC_URL;
+		this.spreadsheetUrl = MetadataToolsConstants.DEFAULT_MFL_SYNC_URL;
 	}
 
 	public LocationAttributeType getAttributeType() {
