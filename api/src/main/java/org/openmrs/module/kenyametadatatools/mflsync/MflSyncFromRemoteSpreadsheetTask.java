@@ -25,12 +25,17 @@ import org.openmrs.LocationAttribute;
 import org.openmrs.LocationAttributeType;
 import org.openmrs.api.context.Context;
 import org.openmrs.module.kenyametadatatools.MetadataToolsUtils;
-import org.openmrs.module.kenyametadatatools.mflsync.BaseMflSyncTask;
 import org.openmrs.module.kenyametadatatools.task.TaskEngine;
 import org.openmrs.util.OpenmrsUtil;
 
-import java.io.*;
+import java.io.BufferedOutputStream;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.net.URL;
+import java.util.Date;
 import java.util.Collections;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
@@ -138,6 +143,8 @@ public class MflSyncFromRemoteSpreadsheetTask extends BaseMflSyncTask {
 		// Create new location if it doesn't exist
 		if (location == null) {
 			location = new Location();
+			location.setCreator(Context.getAuthenticatedUser());
+			location.setDateCreated(new Date());
 
 			// Create MFL code attribute for new location
 			LocationAttribute mfcAttr = new LocationAttribute();
